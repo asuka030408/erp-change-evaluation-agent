@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ERP 变更评估工作台</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">E</span><div><strong>ERP CHANGE</strong><small>影响评估工作台</small></div></div>
+      <div class="side-label">工作区</div>
+      <nav aria-label="工作区导航">
+        <a class="nav-item active" href="#new"><span class="nav-icon">✦</span>发起评估</a>
+        <a class="nav-item" href="#result"><span class="nav-icon">▤</span>评估报告</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="local-tag"><span class="status-dot"></span> 本机工作模式</div>
+        <p>只生成评估草稿。报告审核不等于批准业务规则或生产上线。</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar"><div class="breadcrumb">工作区 <span>/</span> 发起评估</div><div id="mode-pill" class="mode-pill">读取资料中…</div></header>
+      <div class="content">
+        <div class="hero">
+          <div class="eyebrow">CHANGE IMPACT ASSESSMENT <span class="eyebrow-line"></span> 01 / 02</div>
+          <h1>把变更说清楚，<br><em>再决定下一步。</em></h1>
+          <p>输入客户提出的修改需求。Agent 会对照该客户的合同、决定、配置和接口资料，生成一份有出处的初步影响评估。</p>
+          <div class="hero-meta"><span>① 查阅证据</span><b>→</b><span>② 形成草稿</span><b>→</b><span>③ 人工审阅</span></div>
+        </div>
+
+        <div id="notice" class="notice hidden" role="status"></div>
+
+        <section id="new" class="card request-card" aria-labelledby="request-title">
+          <div class="card-heading"><div><div class="section-kicker">新建评估</div><h2 id="request-title">这次想改什么？</h2></div><span class="step-badge">STEP 01</span></div>
+          <form id="assessment-form">
+            <label for="tenant">客户资料</label>
+            <div class="select-wrap"><select id="tenant" required><option value="">正在加载…</option></select></div>
+            <div id="source-caption" class="field-help">只会使用所选客户的资料。</div>
+
+            <label for="request">客户需求</label>
+            <textarea id="request" rows="6" maxlength="10000" required placeholder="例如：客户希望把普通采购审批阈值从 10 万元改为 5 万元，请评估合同、配置、接口及上线影响。"></textarea>
+            <div class="textarea-footer"><span>描述目标、适用范围和期望时间，评估会更准确。</span><span id="char-count">0 / 10000</span></div>
+
+            <div id="examples" class="examples"><span>试试示例</span><button type="button" data-example="threshold">调整审批阈值</button><button type="button" data-example="interface">评估接口影响</button><button type="button" data-example="deployment">是否可以部署</button></div>
+
+            <div class="form-footer"><div class="privacy-note"><span>◇</span> 资料只在当前租户范围内分析</div><button id="submit-btn" class="primary-button" type="submit"><span>开始评估</span><span class="button-arrow">↗</span></button></div>
+          </form>
+        </section>
+
+        <section id="result" class="card result-card" aria-labelledby="result-title">
+          <div class="card-heading"><div><div class="section-kicker">评估结果</div><h2 id="result-title">报告与人工审阅</h2></div><span id="result-status" class="status-pill muted">等待新任务</span></div>
+          <div id="empty-result" class="empty-state"><div class="empty-glyph">▤</div><strong>这里还没有报告</strong><p>提交需求后，带证据出处的评估草稿会出现在这里。</p></div>
+          <div id="report-panel" class="hidden">
+            <div class="report-toolbar"><div><span class="meta-label">任务编号</span><strong id="run-id">—</strong></div><div class="toolbar-actions"><button id="copy-id" type="button" class="secondary-button">复制编号</button><button id="download-report" type="button" class="secondary-button">下载报告</button></div></div>
+            <div id="usage" class="usage-line"></div>
+            <article id="report-body" class="report-body"></article>
+            <div id="review-panel" class="review-panel">
+              <div><div class="section-kicker">人工审核</div><h3>请对照原文审阅这份草稿</h3><p>审核通过只代表报告可用，不批准合同、报价、业务规则或生产修改。</p></div>
+              <div class="review-fields"><label for="reviewer">审阅人姓名</label><input id="reviewer" type="text" maxlength="100" placeholder="请输入姓名"><label for="review-note">审阅备注（可选）</label><textarea id="review-note" rows="3" maxlength="10000" placeholder="记录需要补充或修正的地方"></textarea><div class="review-actions"><button id="reject-btn" type="button" class="secondary-button danger">驳回报告</button><button id="approve-btn" type="button" class="primary-button">审核通过</button></div></div>
+            </div>
+            <div id="reviewed-message" class="reviewed-message hidden"></div>
+          </div>
+        </section>
+
+        <section class="lookup"><div><strong>已有任务编号？</strong><span>可重新打开本机保存的报告。</span></div><div class="lookup-form"><input id="lookup-id" type="text" placeholder="输入任务编号" aria-label="任务编号"><button id="lookup-btn" class="secondary-button" type="button">打开报告</button></div></section>
+        <footer>ERP CHANGE / 本机评估工作台 <span>·</span> 评估建议需要人工核对</footer>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
