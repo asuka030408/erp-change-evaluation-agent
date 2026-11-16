@@ -3,7 +3,7 @@ import shutil
 
 from fastapi.testclient import TestClient
 
-from erp_change_agent.ui import create_ui_app
+from erp_change_agent.run.ui import create_ui_app
 
 
 class FakeEngine:

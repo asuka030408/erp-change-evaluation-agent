@@ -1,7 +1,7 @@
 """命令行和 HTTP API 共用的业务入口。
 
 阅读顺序：先看 assess() 如何启动一次评估，再看 get()/review() 如何接回同一次评估。
-真正的调查循环在 workflow.py；本文件负责准备资料、保存结果和审计。
+真正的调查循环在 workflow/graph.py；本文件负责准备资料、保存结果和审计。
 """
 
 import uuid
@@ -11,13 +11,13 @@ from pathlib import Path
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
 
-from .analyzers.base import AssessmentEngine, ResumeOnlyEngine
-from .analyzers.deepseek import DeepSeekEngine
+from ..model.base import AssessmentEngine, ResumeOnlyEngine
+from ..model.deepseek import DeepSeekEngine
 from .audit import AuditLog, report_hash
-from .corpus import MarkdownCorpus
-from .ingest import IngestResult, ingest_file
-from .memory import ProjectMemory
-from .workflow import build_graph
+from ..rag.corpus import MarkdownCorpus
+from ..rag.ingest import IngestResult, ingest_file
+from ..memory.store import ProjectMemory
+from ..workflow.graph import build_graph
 
 
 @dataclass(frozen=True)
@@ -83,7 +83,7 @@ class AssessmentApplication:
             log.append(run_id, tenant_id, "assessment_started", {"model": model, "request": request})
             # saver 把 LangGraph 的每一步保存到 SQLite，人工审阅时才能接着运行。
             with SqliteSaver.from_conn_string(str(self.data_dir / "checkpoints.sqlite")) as saver:
-                # graph 是 workflow.py 定义的调查流程；config 指定这次任务的进度编号。
+                # graph 是 workflow/graph.py 定义的调查流程；config 指定这次任务的进度编号。
                 graph = build_graph(self.corpus, engine, saver)
                 config = {"configurable": {"thread_id": run_id}}
                 try:

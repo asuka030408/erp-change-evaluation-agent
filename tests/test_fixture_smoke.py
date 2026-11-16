@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-from erp_change_agent.retrieval import HybridRetriever
+from erp_change_agent.rag.retrieval import HybridRetriever
 
 
 def test_all_thirty_fixture_requests_retrieve_only_their_tenant(corpus):

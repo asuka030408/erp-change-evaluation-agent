@@ -3,7 +3,7 @@ import json
 import os
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
-from ..models import Assessment, Evidence
+from ..schemas import Assessment, Evidence
 
 class _Finding(BaseModel):
     model_config = ConfigDict(extra="forbid")

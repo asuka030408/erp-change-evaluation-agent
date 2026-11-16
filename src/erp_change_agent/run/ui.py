@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from .analyzers.base import AssessmentEngine
+from ..model.base import AssessmentEngine
 from .application import AssessmentApplication
 
 

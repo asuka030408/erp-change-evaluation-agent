@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from erp_change_agent.application import AssessmentApplication
+from erp_change_agent.run.application import AssessmentApplication
 
 
 ROOT = Path(__file__).resolve().parents[1]

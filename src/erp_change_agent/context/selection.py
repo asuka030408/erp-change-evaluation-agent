@@ -6,8 +6,8 @@ retriever and keep complete sections within a conservative character budget.
 
 from dataclasses import dataclass
 
-from .models import Evidence, Section
-from .retrieval import HybridRetriever
+from ..schemas import Evidence, Section
+from ..rag.retrieval import HybridRetriever
 
 
 @dataclass(frozen=True)

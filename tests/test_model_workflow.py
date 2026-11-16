@@ -1,8 +1,8 @@
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
 
-from erp_change_agent.models import Assessment, Finding
-from erp_change_agent.workflow import build_graph
+from erp_change_agent.schemas import Assessment, Finding
+from erp_change_agent.workflow.graph import build_graph
 
 
 class FakeModelEngine:

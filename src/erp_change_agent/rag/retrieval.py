@@ -12,7 +12,7 @@ from pathlib import Path
 
 import jieba
 
-from .models import Evidence, Section
+from ..schemas import Evidence, Section
 
 
 _PUNCT = re.compile(r"[\W_]+", re.UNICODE)

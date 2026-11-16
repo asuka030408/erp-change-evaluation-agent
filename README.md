@@ -1,5 +1,7 @@
 # ERP 变更影响评估 Agent（Python）
 
+版本说明见 [CHANGELOG.md](CHANGELOG.md)。同一仓库的 `v0.1.0` 标签保留原始代码结构，`v0.2.0` 标签对应按 Agent 职责整理后的代码。
+
 客户提出 ERP 流程或规则变更后，这个 Agent 对照该客户的合同、变更单、会议决定、配置快照、工单和接口说明，起草**带原文出处的初步影响评估**。它帮助项目团队回答：现行约定是什么、需求与哪些决定冲突、可能影响哪些配置和接口、还缺什么信息、分别需要谁批准。
 
 ![本机评估工作台预览](docs/ui-preview.png)
@@ -85,4 +87,4 @@ API 文档位于 `http://127.0.0.1:8000/docs`。调用时在 `X-ERP-Token` 请�
 .\.venv\Scripts\erp-change.exe --sources-root materials/sources assess --tenant TENANT-XH --ask-api-key --request '请评估采购申请审批阈值改为5万元的影响，并列出待确认事项和审批人'
 ```
 
-测试答案 `materials/cases/` 不会进入检索。模块与当前边界见 [docs/architecture.md](docs/architecture.md)。
+测试答案 `materials/cases/` 不会进入检索。按 Agent 工作时序阅读代码的目录地图、流程图和各模块职责见 [docs/architecture.md](docs/architecture.md)。

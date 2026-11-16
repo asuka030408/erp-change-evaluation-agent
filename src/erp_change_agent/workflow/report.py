@@ -1,6 +1,6 @@
 """Render reviewable Markdown from validated structured data."""
 
-from .models import Assessment, Evidence
+from ..schemas import Assessment, Evidence
 
 
 def render_report(assessment: Assessment, evidence: list[Evidence], run_id: str, analysis_mode: str = "unknown") -> str:

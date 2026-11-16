@@ -3,9 +3,9 @@ import shutil
 
 from fastapi.testclient import TestClient
 
-from erp_change_agent.api import create_app
-from erp_change_agent.auth import TokenStore
-from erp_change_agent.models import Assessment, Finding
+from erp_change_agent.run.api import create_app
+from erp_change_agent.run.auth import TokenStore
+from erp_change_agent.schemas import Assessment, Finding
 
 
 class FakeModel:

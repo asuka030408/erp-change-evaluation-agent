@@ -4,8 +4,8 @@ import pytest
 from docx import Document
 from pypdf import PdfWriter
 
-from erp_change_agent.corpus import MarkdownCorpus
-from erp_change_agent.ingest import ingest_file
+from erp_change_agent.rag.corpus import MarkdownCorpus
+from erp_change_agent.rag.ingest import ingest_file
 
 
 def test_text_import_keeps_original_and_searchable_sections(tmp_path):

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .ingest import TENANT_PATTERN
+from ..rag.ingest import TENANT_PATTERN
 
 
 ROLES = {"analyst", "reviewer", "admin"}

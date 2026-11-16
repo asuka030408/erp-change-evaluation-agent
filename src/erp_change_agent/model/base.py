@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from ..models import Assessment, Evidence
+from ..schemas import Assessment, Evidence
 
 
 class AssessmentEngine(Protocol):

@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-from .models import Section
+from ..schemas import Section
 
 
 HEADER = re.compile(r"^##\s+(.+?)\s+§([\d.]+)\s+(.+)$")

@@ -1,4 +1,4 @@
-from erp_change_agent.context import select_context
+from erp_change_agent.context.selection import select_context
 
 
 def test_short_corpus_reads_all_tenant_sections(corpus):

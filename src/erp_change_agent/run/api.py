@@ -7,10 +7,10 @@ from typing import Callable
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
-from .analyzers.base import AssessmentEngine
+from ..model.base import AssessmentEngine
 from .application import AssessmentApplication
 from .auth import Identity, TokenStore
-from .ingest import EXTENSIONS
+from ..rag.ingest import EXTENSIONS
 
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
@@ -33,7 +33,7 @@ def create_app(
 ) -> FastAPI:
     service = AssessmentApplication(project_root, sources_root)
     token_db = service.data_dir / "api_tokens.sqlite"
-    app = FastAPI(title="ERP Change Assessment", version="0.1.0")
+    app = FastAPI(title="ERP Change Assessment", version="0.2.0")
 
     def identity(x_erp_token: str | None = Header(default=None)) -> Identity:
         if not x_erp_token:

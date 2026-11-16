@@ -1,6 +1,6 @@
 import pytest
 
-from erp_change_agent.memory import ProjectMemory
+from erp_change_agent.memory.store import ProjectMemory
 
 
 def test_memory_requires_human_promotion_and_tenant_match(tmp_path):

@@ -1,4 +1,4 @@
-from erp_change_agent.retrieval import HybridRetriever
+from erp_change_agent.rag.retrieval import HybridRetriever
 
 
 def test_corpus_is_tenant_scoped_and_excludes_answers(corpus):

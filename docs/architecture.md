@@ -1,27 +1,64 @@
-# Agent 架构与边界
+# Agent 代码地图
+
+这次只调整代码位置和导入路径，没有改变评估流程、模型调用策略、API、命令或报告格式。需要按工作时序读代码时，从 `run/` 开始。
+
+```text
+src/erp_change_agent/
+├─ run/                 运行入口：application.py、cli.py、api.py、ui.py
+│  ├─ auth.py           API 令牌与角色
+│  ├─ audit.py          审计记录
+│  └─ web/              本机前端页面、脚本、样式
+├─ workflow/            LangGraph 流程：graph.py、validation.py、report.py
+├─ model/               模型接口 base.py；DeepSeek 调用 deepseek.py
+├─ tools/               Agent 可调用的只读证据工具 evidence.py
+├─ rag/                 原件导入 ingest.py、租户资料 corpus.py、检索 retrieval.py
+├─ context/             本轮证据上下文选择 selection.py
+├─ memory/              人工审核的项目事实 store.py
+└─ schemas.py           各模块共用的数据结构，不是大模型调用
+```
+
+## 一次评估怎样走
 
 ```mermaid
 flowchart TD
-  A[CLI/API: cli.py, api.py] --> B[租户资料与已批准记忆: corpus.py, memory.py]
-  B --> C[初始上下文: context.py, retrieval.py]
-  C --> D[模型决定下一步: analyzers/deepseek.py]
-  D -->|search/read| E[只读租户工具: workflow.py, retrieval.py]
-  E --> D
-  D -->|draft| F[引用范围校验: validation.py]
-  F -->|无效引用| D
-  F --> G[原文支持核对: analyzers/deepseek.py]
-  G -->|需要修订| D
-  G --> H[报告: report.py]
-  H --> I[人工审阅暂停: workflow.py]
-  I --> J[审计和存储: application.py, audit.py]
+  A[用户提交需求<br/>run/cli.py 或 run/api.py 或 run/ui.py]
+  --> B[创建本次任务、读取已批准 Memory<br/>run/application.py + memory/store.py]
+  B --> C[载入当前租户原文<br/>rag/corpus.py]
+  C --> D[选择初始上下文<br/>context/selection.py + rag/retrieval.py]
+  D --> E[模型决定：继续调查或起草<br/>model/deepseek.py]
+  E -->|search/read| F[只读工具按租户搜索或回读<br/>tools/evidence.py]
+  F --> E
+  E -->|draft| G[校验引用 ID、租户和证据范围<br/>workflow/validation.py]
+  G -->|需修订| E
+  G --> H[模型核对原文是否支持结论<br/>model/deepseek.py]
+  H -->|需修订| E
+  H --> I[生成报告<br/>workflow/report.py]
+  I --> J[暂停等待人工审阅<br/>workflow/graph.py]
+  J --> K[保存报告与审计<br/>run/application.py + run/audit.py]
 ```
 
-`workflow.py` 保留 LangGraph 检查点和人工暂停，但把固定分析节点改为模型决定的调查循环。`analyzers/deepseek.py` 的 `decide` 选择搜索、回读或起草；`check_support` 对照原文逐条复核草稿。模型看不到 ERP 写入、合同批准或生产部署工具。`workflow.py` 对工具参数做租户和段落 ID 校验；搜索仅返回本租户的段落，回读也只接受本租户 ID。资料文本被明示为不可信数据。
+`workflow/graph.py` 把这些节点串成 LangGraph 循环，并保存证据 ID、已读原文、调查历史、反馈、调用计数和审阅状态。它负责决定何时调用模型或工具，工具本身在 `tools/evidence.py`。`run/application.py` 是一次任务的外层入口：准备资料和 Memory、运行图、保存报告、恢复人工审阅、记录审计。
 
-小租户的全部原文进入初始上下文。超过 24,000 字或 64 段后，`context.py` 使用 `retrieval.py` 的词项与字符相似度选段，模型可继续搜索和回读。字符相似度不是语义 embedding；将来有 embedding 服务时可替换检索器。证据库保留原件和版本；Memory 只读入人工批准且引用仍有效的事实。
+## 各块负责什么
 
-终止条件：模型选择起草，引用范围校验通过，原文支持核对完成。最多 7 次模型请求、3 次工具动作，累计输入 token 上限 45,000，证据上下文不超过 32,000 字。服务端返回不完整结果、非法 JSON、未知段落或预算耗尽时中止并记失败审计，不交付自动通过的报告。语义核对未通过时允许一次修订；仍有疑点的结论标为“未确认”并要求人工核对。
+- `model/deepseek.py` 是唯一调用 DeepSeek API 的业务模块。`decide()` 在已有证据足够时起草，否则选择 `search` 或 `read`；`check_support()` 逐条检查草稿结论及初步判断。`model/base.py` 定义引擎接口，也供测试引擎和审阅恢复使用。
+- `tools/evidence.py` 只执行搜索和按段落 ID 回读。每次都从当前租户的资料加载，拒绝未知段落，并受证据字符上限约束。模型没有 ERP 写入、合同批准或生产部署工具。
+- `rag/` 保存和读取证据资料。`ingest.py` 保留原件、版本和段落 ID；`corpus.py` 按租户读取；`retrieval.py` 用词项与字符相似度找段落。当前没有 embedding API，也没有向量库。资料较短时 `context/selection.py` 直接给模型当前租户的全部段落；资料变大时才筛选，后续可回读。
+- `memory/store.py` 保存人工确认的项目事实及其出处、取代关系。合同和会议原文属于 `rag/` 的证据库，不属于 Memory。只有已批准、且引用仍在当前租户资料中的事实进入模型上下文。
+- `workflow/validation.py` 检查引用范围并处理范围不明确的部署请求；`workflow/report.py` 只把已校验的评估结构渲染为 Markdown。
+- `run/` 负责入口和运行记录。本地 UI 没有登录，只绑定本机；令牌 HTTP API 在 `run/auth.py` 区分分析员、审阅员和租户。报告审核不等于生产变更批准。
 
-报告含段落 ID、文档类型、状态、日期、来源路径；最终报告在 `.data/reports/<租户>/`。报告审阅由 reviewer/admin 角色完成，仅代表报告审阅。合同、费用、业务规则和生产变更的实际批准应由相应负责人在外部流程完成；本系统没有生产 ERP 连接或部署工具。
+## 阅读顺序
 
-本地 SQLite 适合单机试用。正式部署仍需企业身份与权限、密钥托管、并发隔离、资料访问策略、审计保留策略、ERP 只读连接器和真实客户资料的人工准确率评测。虚构租户的测试与单次 DeepSeek 运行不能证明客户场景准确率。
+1. `run/application.py` 的 `assess()`：客户需求从这里进入一次运行。
+2. `workflow/graph.py` 的 `build_graph()`：看 `gather → decide → tool/verify → render → human_review`。
+3. `model/deepseek.py` 的 `decide()`、`check_support()`：看模型何时被调用、收到什么证据。
+4. `tools/evidence.py`：看模型要求搜索或回读时程序实际允许做什么。
+5. `context/selection.py`、`rag/corpus.py`、`rag/retrieval.py`：看原文如何进入本轮上下文。
+6. `memory/store.py`：看人工确认的事实如何管理。
+7. `workflow/validation.py`、`workflow/report.py`：看报告如何校验和生成。
+8. `run/ui.py`、`run/api.py`、`run/cli.py`：看三种用户入口。
+
+## 保持的边界
+
+最多 7 次模型请求、3 次只读工具动作，累计输入 token 上限 45,000，证据上下文不超过 32,000 字。非法 JSON、未知段落或预算耗尽时失败并记审计。模型核对仍有疑点的结论标记为“未确认”，由有权限的人审阅。项目没有真实 ERP 连接或生产部署工具；虚构材料测试不能证明真实客户场景的准确率。

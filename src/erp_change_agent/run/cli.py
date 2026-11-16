@@ -9,8 +9,8 @@ from pathlib import Path
 
 from .application import AssessmentApplication
 from .auth import TokenStore
-from .memory import ProjectMemory
-from .retrieval import HybridRetriever
+from ..memory.store import ProjectMemory
+from ..rag.retrieval import HybridRetriever
 
 
 def parser() -> argparse.ArgumentParser:

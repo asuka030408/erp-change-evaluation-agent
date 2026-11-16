@@ -2,7 +2,7 @@
 
 import re
 
-from .models import Assessment, Evidence
+from ..schemas import Assessment, Evidence
 
 
 class EvidenceValidationError(ValueError):

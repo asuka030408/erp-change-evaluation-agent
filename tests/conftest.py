@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from erp_change_agent.corpus import MarkdownCorpus
+from erp_change_agent.rag.corpus import MarkdownCorpus
 
 
 @pytest.fixture

@@ -1,4 +1,4 @@
-from erp_change_agent.audit import AuditLog, report_hash
+from erp_change_agent.run.audit import AuditLog, report_hash
 
 
 def test_audit_appends_events_without_overwrite(tmp_path):
